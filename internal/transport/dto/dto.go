@@ -1,2 +1,2 @@
-// Package dto provides a reponse-request models
+// Package dto provides a response-request models
 package dto
