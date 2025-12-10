@@ -1,5 +1,4 @@
-// Package repo provides an interface for work with the repository
-package repo
+package service
 
 type FileRepository interface{}
 

@@ -1,4 +1,3 @@
-// Package logger provides logging utilities
 package logger
 
 // Logger defines the logger contract
