@@ -1,3 +1,4 @@
+// Package hanlder provides server routes 
 package handler
 
 import "github.com/TapokGo/tapok-drive/internal/transport"
