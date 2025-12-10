@@ -21,5 +21,5 @@ type Logger interface {
 
 	// Return new logger with context(static key-value pairs)
 	// Args must be a provided as key-value pairs
-	With(msg string, args ...any) Logger
+	With(args ...any) Logger
 }
