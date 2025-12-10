@@ -40,5 +40,5 @@ func New(cfg config.Config) (*app, error) {
 }
 
 func (a *app) Run() {
-	a.Logger.Info("Start app")
+	a.Logger.Info(a.cfg.AppEnv)
 }

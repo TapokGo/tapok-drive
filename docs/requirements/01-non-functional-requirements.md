@@ -21,7 +21,7 @@
 - All passwords are stored hashed using bcrypt.
 - JWT tokens:
 	- Signed with HMAC-SHA256 (secret from env).
-	- Lifespan: access token — 15 minutes, refresh token — 7 days.
+	- Lifespan: access token — 15 minutes, refresh token — 3 days.
 - All endpoints (except `/auth`, `/s/...`, `/health`) require authentication.
 - Uploaded files:
 	- Validated by actual MIME type (not by extension).
