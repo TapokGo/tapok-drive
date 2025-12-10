@@ -1,3 +1,4 @@
+// Package app provides utilities for init and start server
 package app
 
 import (
@@ -16,6 +17,7 @@ type app struct {
 	server Userhandler
 }
 
+// New inits app dependencies
 func New(cfg config.Config) (*app, error) {
 	logger, err := logger.NewSlog("")
 	if err != nil {
@@ -39,6 +41,7 @@ func New(cfg config.Config) (*app, error) {
 	return app, nil
 }
 
+// Run starts server
 func (a *app) Run() {
 	a.Logger.Info(a.cfg.AppEnv)
 }

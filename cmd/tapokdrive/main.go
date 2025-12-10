@@ -1,3 +1,4 @@
+// Package main is main package of tapok-drive app
 package main
 
 import (
