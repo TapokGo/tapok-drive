@@ -19,7 +19,7 @@ type app struct {
 
 // New inits app dependencies
 func New(cfg config.Config) (*app, error) {
-	logger, err := logger.NewSlog("")
+	logger, err := logger.NewSlog(cfg.LogPath, cfg.AppEnv)
 	if err != nil {
 		return nil, fmt.Errorf("failed to init logger: %w", err)
 	}
@@ -43,5 +43,8 @@ func New(cfg config.Config) (*app, error) {
 
 // Run starts server
 func (a *app) Run() {
-	a.Logger.Info(a.cfg.AppEnv)
+	a.Logger.Info("Info")
+	a.Logger.Error("Error")
+	a.Logger.Warn("Warn")
+	a.Logger.Debug("Debug")
 }
