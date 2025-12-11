@@ -1,0 +1,81 @@
+version: "2"
+
+run:
+  timeout: "5m"
+  modules-download-mode: readonly
+  allow-parallel-runners: true
+
+
+linters:
+  disable:
+    - funlen
+  enable:
+    - funcorder
+    - bodyclose
+    - contextcheck
+    - copyloopvar
+    - dogsled
+    - dupl
+    - embeddedstructfieldcheck
+    - errchkjson
+    - errorlint
+    - errname
+    - gochecknoinits
+    - gocognit
+    - gocritic
+    - gosec
+    - govet 
+    - iface
+    - importas
+    - loggercheck
+    - misspell
+    - sloglint
+    - staticcheck
+    - tagliatelle
+    - testifylint
+    - revive
+    - tparallel
+    - wrapcheck
+    - wsl
+    - nolintlint
+    - decorder
+
+  settings:
+    dupl:
+      threshold: 150
+    
+    embeddedstructfieldcheck:
+      empty-line: false
+      forbid-mutex: false
+
+    gocognit:
+      min-complexity: 20
+
+    gocritic:
+      disable-all: true
+      enabled-checks:
+        - appendCombine
+        - badCall
+        - boolExprSimplify
+        - captLocal
+        - commentedOutCode
+        - dupArg
+        - dupBranchBody
+        - ifElseChain
+        - mapKey
+        - rangeExprCopy
+        - sloppyLen
+        - unnamedResult
+        - wrapperFunc
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+
+output: 
+  formats:
+    text:
+      print-linter-name: true
+      colors: true
+    
+  
