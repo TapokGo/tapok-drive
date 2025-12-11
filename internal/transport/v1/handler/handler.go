@@ -3,6 +3,7 @@ package handler
 
 import (
 	"encoding/json"
+	"io/fs"
 	"net/http"
 
 	"github.com/TapokGo/tapok-drive/internal/transport"
@@ -11,15 +12,23 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
+// Swagger is a model of swagger data
+type Swagger struct {
+	OpenApiSpec []byte
+	SwaggerUI   fs.FS
+}
+
 // Handler is a model of handlers
 type Handler struct {
 	urlService transport.UserService
+	swagger    *Swagger
 }
 
 // NewUserHandler return new Handler{}
-func New(service transport.UserService) *Handler {
+func New(service transport.UserService, swagger *Swagger) *Handler {
 	return &Handler{
 		urlService: service,
+		swagger:    swagger,
 	}
 }
 
@@ -27,11 +36,22 @@ func New(service transport.UserService) *Handler {
 func (h *Handler) Register(r chi.Router) {
 	r.Use(middleware.Recoverer)
 	r.Get("/healthz", h.CheckHealth)
+
+	// Swagger
+	if h.swagger != nil {
+		r.Get("/tapok-drive", h.GetSwagger)
+		r.Handle("/swagger/*", http.StripPrefix("/swagger/", http.FileServer(http.FS(h.swagger.SwaggerUI))))
+	}
 }
 
 // CheckHealth checks server dependencies and return OK
 func (h *Handler) CheckHealth(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, "OK")
+}
+
+func (h *Handler) GetSwagger(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/yaml")
+	w.Write(h.swagger.OpenApiSpec)
 }
 
 func writeJSON(w http.ResponseWriter, status int, v any) {
