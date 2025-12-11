@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/TapokGo/tapok-drive/internal/transport"
+	middle "github.com/TapokGo/tapok-drive/internal/transport/v1/middleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
@@ -44,19 +45,28 @@ func (h *Handler) Register(r chi.Router) {
 }
 
 // CheckHealth checks server dependencies and return OK
-func (h *Handler) checkHealth(w http.ResponseWriter, _ *http.Request) {
-	writeJSON(w, http.StatusOK, "OK")
+func (h *Handler) checkHealth(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, r, http.StatusOK, "OK")
 }
 
-func (h *Handler) getSwagger(w http.ResponseWriter, _ *http.Request) {
+func (h *Handler) getSwagger(w http.ResponseWriter, r *http.Request) {
+	logger := middle.FromContext(r.Context())
 	w.Header().Set("Content-Type", "application/yaml")
-	w.Write(h.swagger.OpenAPISpec)
+	_, err := w.Write(h.swagger.OpenAPISpec)
+	if err != nil {
+		logger.Error("failed to write answer", "error", err)
+	}
 }
 
-func writeJSON(w http.ResponseWriter, status int, v any) {
+func writeJSON(w http.ResponseWriter, r *http.Request, status int, v any) {
+	logger := middle.FromContext(r.Context())
+
 	w.Header().Set("Content-type", "application/json")
 	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(v)
+	err := json.NewEncoder(w).Encode(v)
+	if err != nil {
+		logger.Error("failed to encode message", "message", v, "error", err)
+	}
 }
 
 // func writeError(w http.ResponseWriter, err httperror.HTTPError) {
