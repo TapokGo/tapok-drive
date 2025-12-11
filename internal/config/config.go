@@ -23,6 +23,7 @@ type Config struct {
 	IdleTimeout         time.Duration `env:"IDLE_TIMEOUT" envDefault:"60s"`
 	LogPath             string        `env:"LOG_PATH" envDefault:"./app.log"`
 	ShutdownTimeout     time.Duration `env:"SHUTDOWN_TIMEOUT" envDefault:"10s"`
+	SwaggerMode         bool          `env:"SWAGGER_MODE" envDefault:"false"`
 }
 
 // LoadConfig loads app configuration

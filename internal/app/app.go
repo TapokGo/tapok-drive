@@ -3,9 +3,11 @@ package app
 
 import (
 	"context"
+	"embed"
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"net/http"
 	"os"
 	"os/signal"
@@ -19,6 +21,9 @@ import (
 	"github.com/TapokGo/tapok-drive/internal/transport/v1/handler"
 	"github.com/go-chi/chi/v5"
 )
+
+//go:embed swagger
+var embedFS embed.FS
 
 type app struct {
 	Logger logger.Logger
@@ -43,8 +48,27 @@ func New(cfg config.Config) (*app, error) {
 	// Init service
 	userService := service.NewUserService(repo)
 
+	// Get swagger data
+	var swagger *handler.Swagger
+	if cfg.SwaggerMode {
+		swaggerUI, err := fs.Sub(embedFS, "swagger/swagger-ui")
+		if err != nil {
+			return nil, fmt.Errorf("failed to get swagger data: %w", err)
+		}
+		openApiSpec, err := fs.ReadFile(embedFS, "swagger/openapi.yaml")
+		if err != nil {
+			return nil, fmt.Errorf("failed to get swagger data: %w", err)
+		}
+		swagger = &handler.Swagger{
+			SwaggerUI: swaggerUI,
+			OpenApiSpec: openApiSpec,
+		}
+	} else {
+		swagger = nil
+	}
+
 	// Init router
-	handlers := handler.New(userService)
+	handlers := handler.New(userService, swagger)
 	r := chi.NewRouter()
 	handlers.Register(r)
 
