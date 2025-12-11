@@ -18,11 +18,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	app.Run()
 	defer func() {
 		if err := app.Close(); err != nil {
-			log.Fatal(err)
+			app.Logger.Error("failed to close dependencies", "error", err)
 		}
 	}()
+
+	if err := app.Run(); err != nil {
+		app.Logger.Error("application failed", "error", err)
+	}
 }
