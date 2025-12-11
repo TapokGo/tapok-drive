@@ -22,6 +22,7 @@ func TestLogger(t *testing.T) {
 	newLogger.Error("new logger")
 
 	logFileContent := getContent()
+
 	clenup()
 
 	logs := strings.Split(strings.TrimSpace(logFileContent), "\n")
@@ -52,6 +53,7 @@ func newProdLogger(t *testing.T) (logger Logger, readFile func() string, clenup 
 			content, err := os.ReadFile(tmpFile.Name())
 			require.NoError(t, err)
 			require.NotEmpty(t, content)
+
 			return string(content)
 		},
 		func() {

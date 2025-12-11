@@ -1,4 +1,4 @@
-// Package service provides ulilities for work with users, files and folders
+// Package service provides utilities for work with users, files and folders
 package service
 
 type userService struct{}

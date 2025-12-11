@@ -28,5 +28,5 @@ func TestApp(t *testing.T) {
 
 	err = app.Close()
 	require.NoError(t, err)
-	assert.Equal(t, app.Logger, nil)
+	assert.Nil(t, app.Logger)
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"path/filepath"
 )
 
 type slogLogger struct {
@@ -21,13 +22,15 @@ func NewSlog(logPath, mode string) (*slogLogger, error) {
 		handler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 			Level: slog.LevelDebug,
 		})
+
 		logger = slog.New(handler)
 		logFile = nil
 	} else {
-		logFile, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600)
+		logFile, err := os.OpenFile(filepath.Clean(logPath), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0600)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create logs file: %w", err)
 		}
+
 		handler := slog.NewJSONHandler(logFile, &slog.HandlerOptions{
 			Level: slog.LevelWarn,
 		})
@@ -72,7 +75,7 @@ func (s *slogLogger) Close() error {
 	if s.logFile != nil {
 		err := s.logFile.Close()
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to close logger file: %w", err)
 		}
 
 		s.logFile = nil
