@@ -20,7 +20,7 @@ func main() {
 	}
 	defer func() {
 		if err := app.Close(); err != nil {
-			app.Logger.Error("failed to close dependencies", "error", err)
+			log.Fatal(err)
 		}
 	}()
 

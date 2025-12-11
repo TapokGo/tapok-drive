@@ -22,6 +22,7 @@ type Config struct {
 	Timeout             time.Duration `env:"TIMEOUT" envDefault:"4s"`
 	IdleTimeout         time.Duration `env:"IDLE_TIMEOUT" envDefault:"60s"`
 	LogPath             string        `env:"LOG_PATH" envDefault:"./app.log"`
+	ShutdownTimeout     time.Duration `env:"SHUTDOWN_TIMEOUT" envDefault:"10s"`
 }
 
 // LoadConfig loads app configuration

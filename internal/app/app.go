@@ -2,11 +2,15 @@
 package app
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
+	"os"
+	"os/signal"
 	"strconv"
+	"syscall"
 
 	"github.com/TapokGo/tapok-drive/internal/config"
 	"github.com/TapokGo/tapok-drive/internal/logger"
@@ -66,7 +70,39 @@ func (a *app) Run() error {
 
 	a.Logger.Info("Server started", "address", addr)
 
-	return server.ListenAndServe()
+	// Graceful shutdowm
+	errCh := make(chan error, 1)
+	go func() {
+		errCh <- server.ListenAndServe()
+	}()
+
+	sigCh := make(chan os.Signal, 1)
+	signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
+
+	select {
+	// If get error from server, return server error
+	case err := <-errCh:
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
+			return fmt.Errorf("server failed: %w", err)
+		}
+
+		return nil
+
+	// If get signal from user of OS use graceful shutdown
+	case <-sigCh:
+		a.Logger.Info("Shutting down server...")
+
+		ctx, cancel := context.WithTimeout(context.Background(), a.cfg.ShutdownTimeout)
+		defer cancel()
+
+		if err := server.Shutdown(ctx); err != nil {
+			a.Logger.Error("Server shutdown error", "error", err)
+			return err
+		}
+
+		a.Logger.Info("Server stopped gracefully")
+		return nil
+	}
 }
 
 // Close closes app dependencies
