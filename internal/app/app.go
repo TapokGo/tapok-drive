@@ -19,6 +19,7 @@ import (
 	"github.com/TapokGo/tapok-drive/internal/repo/postgres"
 	"github.com/TapokGo/tapok-drive/internal/service"
 	"github.com/TapokGo/tapok-drive/internal/transport/v1/handler"
+	"github.com/TapokGo/tapok-drive/internal/transport/v1/middleware"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -70,6 +71,7 @@ func New(cfg config.Config) (*app, error) {
 	// Init router
 	handlers := handler.New(userService, swagger)
 	r := chi.NewRouter()
+	r.Use(middle.LoggingMiddleware(logger))
 	handlers.Register(r)
 
 	app := &app{
@@ -94,7 +96,7 @@ func (a *app) Run() error {
 
 	a.Logger.Info("Server started", "address", addr)
 
-	// Graceful shutdowm
+	// Graceful shutdown
 	errCh := make(chan error, 1)
 	go func() {
 		errCh <- server.ListenAndServe()

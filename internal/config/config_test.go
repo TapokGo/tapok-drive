@@ -8,6 +8,7 @@ import (
 )
 
 func TestLoadConfig(t *testing.T) {
+	t.Setenv("APP_ENV", "prod")
 	t.Setenv("JWT_SECRET", "904d6807fcd82fbed6e2289a8ff52178")
 	cfg, err := LoadConfig()
 	require.NotEmpty(t, cfg)
