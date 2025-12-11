@@ -2,6 +2,7 @@
 package app
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -70,15 +71,16 @@ func (a *app) Run() error {
 
 // Close closes app dependencies
 func (a *app) Close() error {
+	closeErrors := make([]error, 0, 2)
 	// Close log file
 	if a.Logger != nil {
 		if closer, ok := a.Logger.(io.Closer); ok {
 			if err := closer.Close(); err != nil {
-				return fmt.Errorf("failed to close log file: %w", err)
+				closeErrors = append(closeErrors, err)
 			}
 		}
 		a.Logger = nil
 	}
 
-	return nil
+	return errors.Join(closeErrors...)
 }
