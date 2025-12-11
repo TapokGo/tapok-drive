@@ -1,4 +1,4 @@
-// Package hanlder provides server routes
+// Package handler provides server routes
 package handler
 
 import (
@@ -7,14 +7,13 @@ import (
 	"net/http"
 
 	"github.com/TapokGo/tapok-drive/internal/transport"
-	"github.com/TapokGo/tapok-drive/internal/transport/httperror"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
 
 // Swagger is a model of swagger data
 type Swagger struct {
-	OpenApiSpec []byte
+	OpenAPISpec []byte
 	SwaggerUI   fs.FS
 }
 
@@ -24,7 +23,7 @@ type Handler struct {
 	swagger    *Swagger
 }
 
-// NewUserHandler return new Handler{}
+// New return new Handler{}
 func New(service transport.UserService, swagger *Swagger) *Handler {
 	return &Handler{
 		urlService: service,
@@ -35,23 +34,23 @@ func New(service transport.UserService, swagger *Swagger) *Handler {
 // Register regists all routes
 func (h *Handler) Register(r chi.Router) {
 	r.Use(middleware.Recoverer)
-	r.Get("/healthz", h.CheckHealth)
+	r.Get("/healthz", h.checkHealth)
 
 	// Swagger
 	if h.swagger != nil {
-		r.Get("/tapok-drive", h.GetSwagger)
+		r.Get("/tapok-drive", h.getSwagger)
 		r.Handle("/swagger/*", http.StripPrefix("/swagger/", http.FileServer(http.FS(h.swagger.SwaggerUI))))
 	}
 }
 
 // CheckHealth checks server dependencies and return OK
-func (h *Handler) CheckHealth(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) checkHealth(w http.ResponseWriter, _ *http.Request) {
 	writeJSON(w, http.StatusOK, "OK")
 }
 
-func (h *Handler) GetSwagger(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) getSwagger(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Content-Type", "application/yaml")
-	w.Write(h.swagger.OpenApiSpec)
+	w.Write(h.swagger.OpenAPISpec)
 }
 
 func writeJSON(w http.ResponseWriter, status int, v any) {
@@ -60,8 +59,8 @@ func writeJSON(w http.ResponseWriter, status int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 
-func writeError(w http.ResponseWriter, err httperror.HTTPError) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(err.Code)
-	_ = json.NewEncoder(w).Encode(err.Message)
-}
+// func writeError(w http.ResponseWriter, err httperror.HTTPError) {
+// 	w.Header().Set("Content-Type", "application/json")
+// 	w.WriteHeader(err.Code)
+// 	_ = json.NewEncoder(w).Encode(err.Message)
+// }

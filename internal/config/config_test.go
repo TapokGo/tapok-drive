@@ -13,7 +13,7 @@ func TestLoadConfig(t *testing.T) {
 	require.NotEmpty(t, cfg)
 	require.NoError(t, err)
 
-	assert.Equal(t, cfg.JWTSecret, "904d6807fcd82fbed6e2289a8ff52178")
+	assert.Equal(t, "904d6807fcd82fbed6e2289a8ff52178", cfg.JWTSecret)
 }
 
 func TestLoadConfig_InvalidData(t *testing.T) {

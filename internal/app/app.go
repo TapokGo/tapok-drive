@@ -55,13 +55,13 @@ func New(cfg config.Config) (*app, error) {
 		if err != nil {
 			return nil, fmt.Errorf("failed to get swagger data: %w", err)
 		}
-		openApiSpec, err := fs.ReadFile(embedFS, "swagger/openapi.yaml")
+		openAPISpec, err := fs.ReadFile(embedFS, "swagger/openapi.yaml")
 		if err != nil {
 			return nil, fmt.Errorf("failed to get swagger data: %w", err)
 		}
 		swagger = &handler.Swagger{
-			SwaggerUI: swaggerUI,
-			OpenApiSpec: openApiSpec,
+			SwaggerUI:   swaggerUI,
+			OpenAPISpec: openAPISpec,
 		}
 	} else {
 		swagger = nil
@@ -121,7 +121,7 @@ func (a *app) Run() error {
 
 		if err := server.Shutdown(ctx); err != nil {
 			a.Logger.Error("Server shutdown error", "error", err)
-			return err
+			return fmt.Errorf("failed to shutdown server: %w", err)
 		}
 
 		a.Logger.Info("Server stopped gracefully")
