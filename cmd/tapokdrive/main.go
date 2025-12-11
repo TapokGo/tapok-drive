@@ -11,13 +11,18 @@ import (
 func main() {
 	cfg, err := config.LoadConfig()
 	if err != nil {
-		log.Fatalf("%s", err.Error())
+		log.Fatal(err)
 	}
 
 	app, err := app.New(cfg)
 	if err != nil {
-		log.Fatalf("%s", err.Error())
+		log.Fatal(err)
 	}
 
 	app.Run()
+	defer func() {
+		if err := app.Close(); err != nil {
+			log.Fatal(err)
+		}
+	}()
 }

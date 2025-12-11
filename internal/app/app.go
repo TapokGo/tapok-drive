@@ -3,6 +3,7 @@ package app
 
 import (
 	"fmt"
+	"io"
 
 	"github.com/TapokGo/tapok-drive/internal/config"
 	"github.com/TapokGo/tapok-drive/internal/logger"
@@ -47,4 +48,19 @@ func (a *app) Run() {
 	a.Logger.Error("Error")
 	a.Logger.Warn("Warn")
 	a.Logger.Debug("Debug")
+}
+
+// Close closes app dependencies
+func (a *app) Close() error {
+	// Close log file
+	if a.Logger != nil {
+		if closer, ok := a.Logger.(io.Closer); ok {
+			if err := closer.Close(); err != nil {
+				return fmt.Errorf("failed to close log file: %w", err)
+			}
+		}
+		a.Logger = nil
+	}
+
+	return nil
 }
