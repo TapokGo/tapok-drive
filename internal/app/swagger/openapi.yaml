@@ -1,0 +1,590 @@
+openapi: 3.1.0
+info:
+  title: Cloud Storage API
+  description: Облачное хранилище (Google Drive-подобное)
+  version: 1.0.0
+
+tags:
+  - name: Auth
+    description: Аутентификация
+  - name: Folders
+    description: Управление папками
+  - name: Files
+    description: Загрузка, скачивание и управление файлами
+  - name: Sharing
+    description: Публичные ссылки
+  - name: Preview
+    description: Превью изображений
+
+paths:
+  # ============== Auth ==============
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Регистрация нового пользователя
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Пользователь создан
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Пользователь с таким email уже существует
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Вход в систему
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Успешный вход
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Неверный email или пароль
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # ============== Folders ==============
+  /folders:
+    post:
+      tags: [Folders]
+      summary: Создать папку
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFolderRequest'
+      responses:
+        '201':
+          description: Папка создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Folder'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          description: Папка с таким именем уже существует в этой директории
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    get:
+      tags: [Folders]
+      summary: Получить содержимое корневой директории
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: parent_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+            description: ID родительской папки. Если не указан — корень.
+      responses:
+        '200':
+          description: Список файлов и папок
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DirectoryContents'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /folders/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    patch:
+      tags: [Folders]
+      summary: Переименовать папку
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RenameRequest'
+      responses:
+        '200':
+          description: Папка переименована
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Folder'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    delete:
+      tags: [Folders]
+      summary: Удалить папку и всё её содержимое
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Папка удалена
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ============== Files ==============
+  /files:
+    post:
+      tags: [Files]
+      summary: Загрузить файл
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                folder_id:
+                  type: string
+                  format: uuid
+                  description: ID папки. Если не указан — загрузка в корень.
+              required: [file]
+      responses:
+        '201':
+          description: Файл загружен
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '413':
+          description: Файл слишком большой (>4 ГБ)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '415':
+          description: Неподдерживаемый MIME-тип
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    get:
+      tags: [Files]
+      summary: Получить список файлов в директории
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: folder_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+            description: ID папки. Если не указан — корень.
+      responses:
+        '200':
+          description: Список файлов
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/File'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /files/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: [Files]
+      summary: Скачать файл
+      # Без security — но на самом деле нужна проверка прав!
+      # В MVP: либо владелец, либо share-ссылка.
+      # Здесь пока только владельцы.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Файл
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    patch:
+      tags: [Files]
+      summary: Переименовать файл
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RenameRequest'
+      responses:
+        '200':
+          description: Файл переименован
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+    delete:
+      tags: [Files]
+      summary: Удалить файл
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Файл удалён
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ============== Preview ==============
+  /files/{id}/preview:
+    get:
+      tags: [Preview]
+      summary: Получить превью изображения
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Превью (JPEG)
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Превью не найдено (файл не изображение или не сгенерировано)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  # ============== Sharing ==============
+  /shares:
+    post:
+      tags: [Sharing]
+      summary: Создать публичную ссылку на файл или папку
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateShareRequest'
+      responses:
+        '201':
+          description: Ссылка создана
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShareLink'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # Публичные ручки — БЕЗ auth!
+  /s/{token}:
+    get:
+      tags: [Sharing]
+      summary: Получить содержимое по share-ссылке (файл или папка)
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+            minLength: 32
+      responses:
+        '200':
+          description: Файл или список содержимого папки
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DirectoryContents'
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Ссылка не найдена или истекла
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # === Auth ===
+    RegisterRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    LoginResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+          example: "Bearer"
+
+    # === Folders & Files ===
+    Folder:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        parent_id:
+          type: string
+          format: uuid
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    File:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        folder_id:
+          type: string
+          format: uuid
+          nullable: true
+        size:
+          type: integer
+          format: int64
+        mime_type:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    DirectoryContents:
+      type: object
+      properties:
+        folders:
+          type: array
+          items:
+            $ref: '#/components/schemas/Folder'
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/File'
+
+    CreateFolderRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        parent_id:
+          type: string
+          format: uuid
+          nullable: true
+
+    RenameRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+
+    CreateShareRequest:
+      type: object
+      required: [resource_id, resource_type]
+      properties:
+        resource_id:
+          type: string
+          format: uuid
+        resource_type:
+          type: string
+          enum: [file, folder]
+
+    ShareLink:
+      type: object
+      properties:
+        token:
+          type: string
+          minLength: 32
+        url:
+          type: string
+          example: "http://localhost:8080/s/abc123def456"
+
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Некорректный запрос
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: Требуется аутентификация
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Forbidden:
+      description: Доступ запрещён
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Ресурс не найден
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Conflict:
+      description: Конфликт (например, дублирующее имя)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

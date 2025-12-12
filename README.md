@@ -18,8 +18,8 @@ Go-based REST API with S3-compatible backend (MinIO).
 
 ## 📚 Documentation
 
-- [Requirements & User Stories](./docs/00-requirements.md)
-- [Non-Functional Requirements](./docs/01-non-functional-requirements.md)
+- [Requirements & User Stories](./docs/requirements/00-requirements.md)
+- [Non-Functional Requirements](./docs/requirements/01-non-functional-requirements.md)
 - [API Specification (OpenAPI)](./docs/api/openapi.yaml)
 - [Getting Started](./docs/getting-started.md) *(coming soon)*
 
