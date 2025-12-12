@@ -10,7 +10,7 @@ import (
 
 // Config is a app config model
 type Config struct {
-	JWTSecret           string        `env:"JWT_SECRET,required"`
+	JWTSecret           string        `env:"JWT_SECRET"`
 	AccessTokenExpires  time.Duration `env:"ACCESS_TOKEN_EXPIRES" envDefault:"15m"`
 	RefreshTokenExpires time.Duration `env:"REFRESH_TOKEN_EXPIRES" envDefault:"72h"`
 	ServerAddress       string        `env:"ADDRESS" envDefault:"localhost"`
