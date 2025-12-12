@@ -3,12 +3,9 @@ package config
 
 import (
 	"fmt"
-	"log"
-	"os"
 	"time"
 
 	"github.com/caarlos0/env/v11"
-	"github.com/joho/godotenv"
 )
 
 // Config is a app config model
@@ -28,13 +25,6 @@ type Config struct {
 
 // LoadConfig loads app configuration
 func LoadConfig() (Config, error) {
-	// In dev mode load env from file
-	if os.Getenv("APP_ENV") != "prod" {
-		if err := godotenv.Load(); err != nil {
-			log.Println("Warning: .env not found")
-		}
-	}
-
 	cfg := Config{}
 	if err := env.Parse(&cfg); err != nil {
 		return cfg, fmt.Errorf("failed to load config: %w", err)
