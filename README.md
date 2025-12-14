@@ -18,9 +18,9 @@ Go-based REST API with S3-compatible backend (MinIO).
 
 ## 📚 Documentation
 
-- [Requirements & User Stories](./docs/requirements/00-requirements.md)
+- [User Stories](./docs/requirements/00-requirements.md)
 - [Non-Functional Requirements](./docs/requirements/01-non-functional-requirements.md)
-- [API Specification (OpenAPI)](./docs/api/openapi.yaml)
+- [API Specification (OpenAPI)](./internal/app/swagger/openapi.yaml)
 - [Getting Started](./docs/getting-started.md) *(coming soon)*
 
 > 💡 This project provides **only a backend API** — no frontend included.
