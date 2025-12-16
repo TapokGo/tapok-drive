@@ -1,0 +1,21 @@
+root = "."
+tmp_dir = "tmp"
+
+[build] 
+    cmd = "go build -o ./tmp/tapokdrive ./cmd/tapokdrive"
+    full_bin = "./tmp/tapokdrive"
+
+    log = "air_errors.log"
+    include_ext = ["go", "yaml"]
+    exclude_dir = ["tmp"]
+    delay = 1000
+
+[log]
+    time = true
+
+[watch]
+    polling = true
+    poll_interval = 500
+
+[misc]
+    clean_on_exit = true

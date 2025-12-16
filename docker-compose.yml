@@ -1,6 +1,8 @@
 services:
   app:
-    build: .
+    build: 
+      context: .
+      dockerfile: dev.Dockerfile
     env_file:
       - .env
     ports:
@@ -12,6 +14,8 @@ services:
         condition: service_healthy
     networks:
       - app-network
+    volumes:
+      - ./:/app
 
   postgres:
     image: postgres:13
