@@ -6,14 +6,14 @@ services:
     ports:
       - "${PORT}:${PORT}"
     depends_on:
-      database:
+      postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
     networks:
       - app-network
 
-  database:
+  postgres:
     image: postgres:13
     environment:
       POSTGRES_DB: ${DB_NAME}
