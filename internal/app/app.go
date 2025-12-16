@@ -19,7 +19,7 @@ import (
 	"github.com/TapokGo/tapok-drive/internal/repo/postgres"
 	"github.com/TapokGo/tapok-drive/internal/service"
 	"github.com/TapokGo/tapok-drive/internal/transport/v1/handler"
-	"github.com/TapokGo/tapok-drive/internal/transport/v1/middleware"
+	middle "github.com/TapokGo/tapok-drive/internal/transport/v1/middleware"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -85,7 +85,7 @@ func New(cfg config.Config) (*app, error) {
 
 // Run starts server
 func (a *app) Run() error {
-	addr := a.cfg.ServerAddress + ":" + strconv.Itoa(a.cfg.ServerPort)
+	addr := "http://localhost:" + ":" + strconv.Itoa(a.cfg.ServerPort)
 	server := &http.Server{
 		Addr:              addr,
 		Handler:           a.router,
