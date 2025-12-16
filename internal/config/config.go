@@ -13,7 +13,6 @@ type Config struct {
 	JWTSecret           string        `env:"JWT_SECRET"`
 	AccessTokenExpires  time.Duration `env:"ACCESS_TOKEN_EXPIRES" envDefault:"15m"`
 	RefreshTokenExpires time.Duration `env:"REFRESH_TOKEN_EXPIRES" envDefault:"72h"`
-	ServerAddress       string        `env:"ADDRESS" envDefault:"localhost"`
 	ServerPort          int           `env:"PORT" envDefault:"8080"`
 	AppEnv              string        `env:"APP_ENV" envDefault:"prod"`
 	Timeout             time.Duration `env:"TIMEOUT" envDefault:"4s"`

@@ -1,19 +1,23 @@
 services:
   app:
-    build: .
+    build: 
+      context: .
+      dockerfile: dev.Dockerfile
     env_file:
       - .env
     ports:
       - "${PORT}:${PORT}"
     depends_on:
-      database:
+      postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
     networks:
       - app-network
+    volumes:
+      - ./:/app
 
-  database:
+  postgres:
     image: postgres:13
     environment:
       POSTGRES_DB: ${DB_NAME}
@@ -27,8 +31,6 @@ services:
       start_period: 5s
     volumes:
       - db-data:/var/lib/postgresql/data
-    ports:
-      - "${DB_PORT}:${DB_PORT}"
     networks:
       - app-network
 
