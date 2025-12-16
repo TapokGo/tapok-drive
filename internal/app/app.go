@@ -85,7 +85,7 @@ func New(cfg config.Config) (*app, error) {
 
 // Run starts server
 func (a *app) Run() error {
-	addr := "http://localhost:" + ":" + strconv.Itoa(a.cfg.ServerPort)
+	addr := ":" + strconv.Itoa(a.cfg.ServerPort)
 	server := &http.Server{
 		Addr:              addr,
 		Handler:           a.router,
@@ -94,7 +94,7 @@ func (a *app) Run() error {
 		ReadHeaderTimeout: a.cfg.IdleTimeout,
 	}
 
-	a.Logger.Info("Server started", "address", addr)
+	a.Logger.Info("Server started", "port", addr)
 
 	// Graceful shutdown
 	errCh := make(chan error, 1)
