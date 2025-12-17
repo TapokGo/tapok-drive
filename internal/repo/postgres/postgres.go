@@ -9,6 +9,7 @@ import (
 	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
+// NewPostgresDb create new postgres conn
 func NewPostgresDB(dsn string) (*sql.DB, error) {
 	db, err := sql.Open("pgx", dsn)
 	if err != nil {
