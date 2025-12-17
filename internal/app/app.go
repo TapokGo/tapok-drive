@@ -3,6 +3,7 @@ package app
 
 import (
 	"context"
+	"database/sql"
 	"embed"
 	"errors"
 	"fmt"
@@ -30,6 +31,7 @@ type app struct {
 	Logger logger.Logger
 	cfg    config.Config
 	router http.Handler
+	db     *sql.DB
 }
 
 // New inits app dependencies
@@ -41,13 +43,17 @@ func New(cfg config.Config) (*app, error) {
 	}
 
 	// Init repository
-	repo, err := postgres.New()
+	dsn := cfg.PostgresDSN()
+
+	db, err := postgres.NewPostgresDB(dsn)
 	if err != nil {
 		return nil, fmt.Errorf("failed to init db: %w", err)
 	}
 
+	userRepo := postgres.NewUserRepository(db)
+
 	// Init service
-	userService := service.NewUserService(repo)
+	userService := service.NewUserService(userRepo)
 
 	// Get swagger data
 	var swagger *handler.Swagger
@@ -78,6 +84,7 @@ func New(cfg config.Config) (*app, error) {
 		Logger: logger,
 		cfg:    cfg,
 		router: r,
+		db:     db,
 	}
 
 	return app, nil
@@ -142,6 +149,13 @@ func (a *app) Close() error {
 			}
 		}
 		a.Logger = nil
+	}
+
+	if a.db != nil {
+		if err := a.db.Close(); err != nil {
+			closeErrors = append(closeErrors, err)
+		}
+		a.db = nil
 	}
 
 	return errors.Join(closeErrors...)

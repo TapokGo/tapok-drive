@@ -20,6 +20,10 @@ type Config struct {
 	LogPath             string        `env:"LOG_PATH" envDefault:"./app.log"`
 	ShutdownTimeout     time.Duration `env:"SHUTDOWN_TIMEOUT" envDefault:"10s"`
 	SwaggerMode         bool          `env:"SWAGGER_MODE" envDefault:"false"`
+	DBHost              string        `env:"DB_HOST" envDefault:"postgres"`
+	DBUser              string        `env:"DB_USER" envDefault:"tapok"`
+	DBName              string        `env:"DB_NAME" envDefault:"drive"`
+	DBPassword          string        `env:"DB_PASSWORD" envDefault:"password"`
 }
 
 // LoadConfig loads app configuration
@@ -59,4 +63,15 @@ func (c *Config) validate() error {
 	}
 
 	return nil
+}
+
+// PostgresDSN create a db conn string
+func (c *Config) PostgresDSN() string {
+	return fmt.Sprintf(
+		"host=%s port=5432 user=%s password=%s dbname=%s sslmode=disable",
+		c.DBHost,
+		c.DBUser,
+		c.DBPassword,
+		c.DBName,
+	)
 }
