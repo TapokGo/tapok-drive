@@ -1,5 +1,11 @@
 package service
 
+import (
+	"context"
+
+	"github.com/google/uuid"
+)
+
 // FileRepository temp
 type FileRepository interface{}
 
@@ -7,4 +13,6 @@ type FileRepository interface{}
 type FolderRepository interface{}
 
 // UserRepository
-type UserRepository interface{}
+type UserRepository interface {
+	Create(ctx context.Context, id uuid.UUID, email, passwordHah string) error
+}
