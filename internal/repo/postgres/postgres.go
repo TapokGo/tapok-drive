@@ -3,10 +3,15 @@ package postgres
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"time"
 
 	_ "github.com/jackc/pgx/v4/stdlib"
+)
+
+var (
+	ErrUserDuplicate error = errors.New("user with this email already exists")
 )
 
 // NewPostgresDb create new postgres conn
