@@ -7,6 +7,7 @@ import (
 	"net/mail"
 	"unicode"
 
+	"github.com/TapokGo/tapok-drive/internal/pkg"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -17,7 +18,7 @@ type CreateUser struct {
 }
 
 type UserResponse struct {
-	ID    string
+	ID    uuid.UUID
 	Email string
 }
 
@@ -38,11 +39,14 @@ func (u *userService) Create(ctx context.Context, dto CreateUser) (*UserResponse
 
 	err = u.repo.Create(ctx, id, dto.Email, hash)
 	if err != nil {
+		if err == pkg.ErrDuplicate {
+			return nil, ErrUserExists
+		}
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
 	return &UserResponse{
-		ID:    id.String(),
+		ID:    id,
 		Email: dto.Email,
 	}, nil
 }

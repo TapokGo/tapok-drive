@@ -20,7 +20,6 @@ import (
 	"github.com/TapokGo/tapok-drive/internal/repo/postgres"
 	"github.com/TapokGo/tapok-drive/internal/service"
 	"github.com/TapokGo/tapok-drive/internal/transport/v1/handler"
-	middle "github.com/TapokGo/tapok-drive/internal/transport/v1/middleware"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -75,9 +74,8 @@ func New(cfg config.Config) (*app, error) {
 	}
 
 	// Init router
-	handlers := handler.New(userService, swagger)
+	handlers := handler.New(userService, logger, swagger)
 	r := chi.NewRouter()
-	r.Use(middle.LoggingMiddleware(logger))
 	handlers.Register(r)
 
 	app := &app{

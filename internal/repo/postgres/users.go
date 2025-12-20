@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/TapokGo/tapok-drive/internal/pkg"
 	"github.com/google/uuid"
 )
 
@@ -39,7 +40,7 @@ func (u *userRepository) Create(ctx context.Context, id uuid.UUID, email, passwo
 	}
 
 	if rowsAffected == 0 {
-		return ErrUserDuplicate
+		return pkg.ErrDuplicate
 	}
 
 	return nil

@@ -32,7 +32,7 @@ func NewSlog(logPath, mode string) (*slogLogger, error) {
 		}
 
 		handler := slog.NewJSONHandler(logFile, &slog.HandlerOptions{
-			Level: slog.LevelWarn,
+			Level: slog.LevelInfo,
 		})
 		logger = slog.New(handler)
 	}
