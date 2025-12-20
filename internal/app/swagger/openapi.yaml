@@ -439,6 +439,7 @@ components:
         password:
           type: string
           minLength: 8
+          example: "QwErTy12"
 
     LoginRequest:
       type: object
